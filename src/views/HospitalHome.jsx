@@ -36,10 +36,7 @@ export default function HospitalHome(props) {
   const [foundBloodData, setFoundBlood] = useState({});
   const [loading, setLoading] = useState(false);
   const [modal, setModal] = useState(false);
-  const [bloodbankCord, updateBloodbankCord] = useState({
-    lat: "",
-    long: "",
-  });
+  const [bloodbankCord, updateBloodbankCord] = useState();
 
   const qrRef = useRef(null);
   const [code, setCode] = useState("");
@@ -138,10 +135,7 @@ export default function HospitalHome(props) {
         return a[1] < b[1];
       });
 
-      updateBloodbankCord({
-        lat: bloodCoords[0],
-        long: bloodCoords[1],
-      });
+      updateBloodbankCord(bloodCoords[0] + "," + bloodCoords[1]);
 
       var nearestBlood = reqBlood[0];
       console.log(nearestBlood);
@@ -343,9 +337,9 @@ export default function HospitalHome(props) {
                                 target="1"
                                 href={
                                   "http://google.com/maps?q=" +
-                                  bloodbankCord.lat +
+                                  bloodbankCord +
                                   "&ll=" +
-                                  bloodbankCord.long +
+                                  bloodbankCord +
                                   "&z=20"
                                 }
                               >
@@ -358,7 +352,11 @@ export default function HospitalHome(props) {
                                 borderStyle="solid"
                                 title="maps"
                                 src={
-                                  "www.google.com/maps?q=latitude,longitude&z=zoom&output=embed"
+                                  "http://google.com/maps?q=" +
+                                  bloodbankCord +
+                                  "&ll=" +
+                                  bloodbankCord +
+                                  "&z=20&output=embed"
                                 }
                                 height="300"
                                 width="420"
