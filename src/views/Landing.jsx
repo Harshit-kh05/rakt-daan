@@ -115,9 +115,9 @@ export default function Landing() {
                       <h3 className="info-title">Transparency</h3>
                       <hr className="line-info" />
                       <p style={{ fontSize: "16px", fontWeight: "600" }}>
-                        Divide details about your work into parts. Write a few
-                        lines about each one. A paragraph describing a feature
-                        will.
+                        We ensure that the distribution of blood is transparent
+                        and publicly accessible to everyone, using blockchain
+                        technology.
                       </p>
                     </div>
                   </Col>
@@ -129,9 +129,9 @@ export default function Landing() {
                       <h3 className="info-title">Reliability</h3>
                       <hr className="line-default" />
                       <p style={{ fontSize: "16px", fontWeight: "600" }}>
-                        Divide details about your product or agency work into
-                        parts. Write a few lines about each one. A paragraph
-                        describing feature will be a feature.
+                        We ensures to make our platform reliable, so that the
+                        safe blood is accessible to everyone all the time by
+                        storing data on a decentralised system.
                       </p>
                     </div>
                   </Col>

@@ -23,7 +23,7 @@
 // const fs = require('fs');
 // const mnemonic = fs.readFileSync(".secret").toString().trim();
 const HDWalletProvider = require("@truffle/hdwallet-provider");
-const mnemonic = process.env.REACT_APP_MNEMONIC;
+const mnemonic = 'core snack strategy goose valley imitate brown jewel say bicycle valley moral';
 module.exports = {
   /**
    * Networks define how you connect to your ethereum client and let you set the
@@ -49,7 +49,7 @@ module.exports = {
     },
     matic: {
       provider: () =>
-        new HDWalletProvider(mnemonic, `https://rpc-mumbai.matic.today`),
+        new HDWalletProvider(mnemonic, `https://rpc-mumbai.maticvigil.com`),
       network_id: 80001,
       confirmations: 2,
       timeoutBlocks: 200,

@@ -174,7 +174,7 @@ export default function HospitalHome(props) {
       alert(`${"Please Select a Blood Group"}`);
     }
   }
-
+  const Navigate = useNavigate();
   async function transferAsset() {
     console.log(
       "Transfer from : ",
@@ -192,7 +192,7 @@ export default function HospitalHome(props) {
       )
       .send({ from: accounts[0] })
       .then(() => {
-        return;
+        alert("Blood Transfer Successfully");
       });
   }
 
