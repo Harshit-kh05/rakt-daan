@@ -8,10 +8,13 @@ import {
   Container,
   Form,
   Row,
+  Spinner,
 } from "react-bootstrap";
 import BlockChainContext from "../context/BlockChainContext";
 import globalContext from "../context/GlobalContext";
 import { useNavigate } from "react-router-dom";
+import { Dots } from "react-preloaders";
+import Preloader from "../components/Preloader";
 
 export default function Register() {
   const [squares1to6, setSquares1to6] = useState("");
@@ -21,6 +24,9 @@ export default function Register() {
   const [pass, setPass] = useState("");
   const [add, setAdd] = useState("");
   const [type, setType] = useState("");
+  const [alertMessage, setAlert] = useState("");
+
+  const [isLoading, setLoading] = useState(false);
 
   const [showAlert, setShow] = useState(false);
 
@@ -32,7 +38,7 @@ export default function Register() {
   useEffect(() => {
     document.body.classList.toggle("register-page");
     document.documentElement.addEventListener("mousemove", followCursor);
-
+    console.log(accounts);
     // Specify how to clean up after this effect:
     return function cleanup() {
       document.body.classList.toggle("register-page");
@@ -60,7 +66,7 @@ export default function Register() {
 
   async function formSubmit(e) {
     e.preventDefault();
-    var accExist = await contract.methods.getIdentity(accounts[0]);
+    var accExist = await contract.methods.getIdentity(accounts[0]).call();
 
     console.log(name, email, pass, type, add, accounts[0]);
     if (
@@ -70,15 +76,19 @@ export default function Register() {
       (type !== "Blood Bank" && type !== "Hospital") ||
       add === ""
     ) {
+      setAlert("Complete the form");
+      setShow(true);
+      setTimeout(() => setShow(false), 3000);
+    } else if (accExist) {
+      setAlert("Account Exist with current Wallet :", accounts[0]);
+      console.log(alertMessage);
       setShow(true);
       setTimeout(() => setShow(false), 3000);
     }
-    // else if (accExist) {
-    //   alert("Account exist ");
-    // }
     // add to blockchain
     else {
       try {
+        setLoading(true);
         let coords;
         // setting fixed coords due to non availibility of free geocoder
         if (type == "Blood Bank") {
@@ -107,135 +117,139 @@ export default function Register() {
     }
   }
 
-  return (
-    <>
-      <CustomNavbar />
-      <div className="wrapper">
-        <div className="page-header" style={{ background: "white" }}>
-          <div className="page-header-image" />
-          <div className="content m-0  mt-5 p-5">
-            <Container>
-              <Alert show={showAlert} variant="info">
-                Complete the form
-              </Alert>
-              <Row>
-                <Col className="offset-lg-0 offset-md-3" lg="5" md="6">
-                  <div
-                    className="square square-7"
-                    id="square7"
-                    style={{ transform: squares7and8 }}
-                  />
-                  <div
-                    className="square square-8"
-                    id="square8"
-                    style={{ transform: squares7and8 }}
-                  />
-                  <Card className="card-register">
-                    <Card.Header>
-                      <Card.Img
-                        alt="..."
-                        src={require("../assets/img/square-purple-1.png")}
-                      />
-                      <Card.Title tag="h4">register</Card.Title>
-                    </Card.Header>
-                    <Card.Body>
-                      <Form>
-                        <Form.Group className="mb-3">
-                          <Form.Control
-                            type="text"
-                            placeholder="Enter Org Name"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                          ></Form.Control>
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                          <Form.Control
-                            type="email"
-                            placeholder="Enter Email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                          />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                          <Form.Control
-                            type="password"
-                            placeholder="Enter Password"
-                            value={pass}
-                            onChange={(e) => setPass(e.target.value)}
-                          />
-                        </Form.Group>
-                        <Form.Group>
-                          <Form.Control
-                            className="mb-3"
-                            as="textarea"
-                            placeholder="Enter Address"
-                            rows="2"
-                            value={add}
-                            onChange={(e) => setAdd(e.target.value)}
-                          ></Form.Control>
-                        </Form.Group>
-                        <Form.Group>
-                          <Form.Select
-                            className="form-control"
-                            value={type}
-                            onChange={(e) => {
-                              setType(e.target.value);
-                            }}
-                          >
-                            <option value="">Select Org Type</option>
-                            <option>Hospital</option>
-                            <option>Blood Bank</option>
-                          </Form.Select>
-                        </Form.Group>
-                      </Form>
-                    </Card.Body>
-                    <Card.Footer>
-                      <Button
-                        className="btn-round"
-                        color="primary"
-                        size="lg"
-                        onClick={formSubmit}
-                      >
-                        Get Started
-                      </Button>
-                    </Card.Footer>
-                  </Card>
-                </Col>
-              </Row>
-              <div
-                className="square square-1"
-                id="square1"
-                style={{ transform: squares1to6 }}
-              />
-              <div
-                className="square square-2"
-                id="square2"
-                style={{ transform: squares1to6 }}
-              />
-              <div
-                className="square square-3"
-                id="square3"
-                style={{ transform: squares1to6 }}
-              />
-              <div
-                className="square square-4"
-                id="square4"
-                style={{ transform: squares1to6 }}
-              />
-              <div
-                className="square square-5"
-                id="square5"
-                style={{ transform: squares1to6 }}
-              />
-              <div
-                className="square square-6"
-                id="square6"
-                style={{ transform: squares1to6 }}
-              />
-            </Container>
+  if (!isLoading) {
+    return (
+      <>
+        <CustomNavbar url="home" />
+        <div className="wrapper">
+          <div className="page-header" style={{ background: "white" }}>
+            <div className="page-header-image" />
+            <div className="content m-0  mt-5 p-5">
+              <Container>
+                <Alert show={showAlert} variant="info">
+                  {alertMessage}
+                </Alert>
+                <Row>
+                  <Col className="offset-lg-0 offset-md-3" lg="5" md="6">
+                    <div
+                      className="square square-7"
+                      id="square7"
+                      style={{ transform: squares7and8 }}
+                    />
+                    <div
+                      className="square square-8"
+                      id="square8"
+                      style={{ transform: squares7and8 }}
+                    />
+                    <Card className="card-register">
+                      <Card.Header>
+                        <Card.Img
+                          alt="..."
+                          src={require("../assets/img/square-purple-1.png")}
+                        />
+                        <Card.Title tag="h4">register</Card.Title>
+                      </Card.Header>
+                      <Card.Body>
+                        <Form>
+                          <Form.Group className="mb-3">
+                            <Form.Control
+                              type="text"
+                              placeholder="Enter Org Name"
+                              value={name}
+                              onChange={(e) => setName(e.target.value)}
+                            ></Form.Control>
+                          </Form.Group>
+                          <Form.Group className="mb-3">
+                            <Form.Control
+                              type="email"
+                              placeholder="Enter Email"
+                              value={email}
+                              onChange={(e) => setEmail(e.target.value)}
+                            />
+                          </Form.Group>
+                          <Form.Group className="mb-3">
+                            <Form.Control
+                              type="password"
+                              placeholder="Enter Password"
+                              value={pass}
+                              onChange={(e) => setPass(e.target.value)}
+                            />
+                          </Form.Group>
+                          <Form.Group>
+                            <Form.Control
+                              className="mb-3"
+                              as="textarea"
+                              placeholder="Enter Address"
+                              rows="2"
+                              value={add}
+                              onChange={(e) => setAdd(e.target.value)}
+                            ></Form.Control>
+                          </Form.Group>
+                          <Form.Group>
+                            <Form.Select
+                              className="form-control"
+                              value={type}
+                              onChange={(e) => {
+                                setType(e.target.value);
+                              }}
+                            >
+                              <option value="">Select Org Type</option>
+                              <option>Hospital</option>
+                              <option>Blood Bank</option>
+                            </Form.Select>
+                          </Form.Group>
+                        </Form>
+                      </Card.Body>
+                      <Card.Footer>
+                        <Button
+                          className="btn-round"
+                          color="primary"
+                          size="lg"
+                          onClick={formSubmit}
+                        >
+                          Get Started
+                        </Button>
+                      </Card.Footer>
+                    </Card>
+                  </Col>
+                </Row>
+                <div
+                  className="square square-1"
+                  id="square1"
+                  style={{ transform: squares1to6 }}
+                />
+                <div
+                  className="square square-2"
+                  id="square2"
+                  style={{ transform: squares1to6 }}
+                />
+                <div
+                  className="square square-3"
+                  id="square3"
+                  style={{ transform: squares1to6 }}
+                />
+                <div
+                  className="square square-4"
+                  id="square4"
+                  style={{ transform: squares1to6 }}
+                />
+                <div
+                  className="square square-5"
+                  id="square5"
+                  style={{ transform: squares1to6 }}
+                />
+                <div
+                  className="square square-6"
+                  id="square6"
+                  style={{ transform: squares1to6 }}
+                />
+              </Container>
+            </div>
           </div>
         </div>
-      </div>
-    </>
-  );
+      </>
+    );
+  } else {
+    return <Preloader />;
+  }
 }

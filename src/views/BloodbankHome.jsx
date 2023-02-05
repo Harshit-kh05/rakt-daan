@@ -18,6 +18,7 @@ import BlockChainContext from "../context/BlockChainContext";
 import DonarCard from "../components/DonarCard";
 
 import FetchFromAadhar from "../dummyAPI/fetchAadhar";
+import Preloader from "../components/Preloader";
 
 export default function BloodbankHome(props) {
   // will svae blockchain data in it
@@ -182,17 +183,6 @@ export default function BloodbankHome(props) {
       </>
     );
   } else {
-    return (
-      <Container className="preLoaderContainer">
-        <Container className="text-center">
-          <Spinner animation="grow" variant="danger"></Spinner>
-          <Spinner animation="grow" variant="danger"></Spinner>
-          <Spinner animation="grow" variant="danger"></Spinner>
-          <Spinner animation="grow" variant="danger"></Spinner>
-          <Spinner animation="grow" variant="danger"></Spinner>
-          <p>Loading</p>
-        </Container>
-      </Container>
-    );
+    return <Preloader />;
   }
 }

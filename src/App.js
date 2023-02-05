@@ -16,6 +16,8 @@ import BloodCollection from "./views/BloodCollection";
 import UpdateStatus from "./views/UpdateStatus";
 import HospitalHome from "./views/HospitalHome";
 
+import "./App.scss";
+
 const getWeb3 = async () => {
   let web3Object = undefined;
   if (window.ethereum) {

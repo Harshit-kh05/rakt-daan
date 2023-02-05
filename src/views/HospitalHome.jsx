@@ -82,12 +82,8 @@ export default function HospitalHome(props) {
     e.preventDefault();
     setLoading(true);
     if (bloodToBeSearched.selectedBloodGroup !== "select") {
-      // 1.1 . search for nearest blood banks
       var b_count = await contract.methods.getBloodCount().call();
       var reqBlood = []; // multidimensioanl array with blood if distanct coords
-      var nearest = "";
-      var temp_loc = "";
-      var bloodToBeSearched_copy = {};
 
       for (let i = 1; i <= b_count; ++i) {
         const bloodData = await contract.methods.getBloodData(i).call();
@@ -125,6 +121,7 @@ export default function HospitalHome(props) {
       }
 
       if (reqBlood.length == 0) {
+        setLoading(false);
         alert("Blood Not Found");
         return;
       }
@@ -172,9 +169,10 @@ export default function HospitalHome(props) {
       setModal(true);
     } else {
       alert(`${"Please Select a Blood Group"}`);
+      setLoading(false);
     }
   }
-  const Navigate = useNavigate();
+
   async function transferAsset() {
     console.log(
       "Transfer from : ",
@@ -192,6 +190,7 @@ export default function HospitalHome(props) {
       )
       .send({ from: accounts[0] })
       .then(() => {
+        setModal(false);
         alert("Blood Transfer Successfully");
       });
   }
