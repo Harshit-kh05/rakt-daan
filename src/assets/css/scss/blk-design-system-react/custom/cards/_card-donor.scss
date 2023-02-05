@@ -1,4 +1,6 @@
-.card-register {
+.card-donor {
+  background-color: $secondary;
+  width: 400px;
   overflow: hidden;
   text-align: left;
   z-index: 2;
@@ -42,7 +44,7 @@
 
     .card-title {
       position: relative;
-      font-size: 5em;
+      font-size: 3em;
       font-weight: 900;
       color: $black;
       text-transform: lowercase;
@@ -54,8 +56,13 @@
   .card-img {
     position: absolute;
     left: 0;
-    top: -15%;
-    width: 70%;
+    top: -30%;
+    width: 72%;
+  }
+
+  b {
+    font-size: 1.2rem;
+    color: $black;
   }
 
   .social-line {
@@ -77,13 +84,13 @@
 }
 
 @include media-breakpoint-down(md) {
-  .card.card-register .card-img {
+  .card.card-donor .card-img {
     margin-left: -45px;
   }
 }
 
 @include media-breakpoint-down(xs) {
-  .card.card-register {
+  .card.card-donor {
     margin-top: 50px;
   }
 }

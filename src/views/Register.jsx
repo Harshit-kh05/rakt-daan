@@ -60,6 +60,8 @@ export default function Register() {
 
   async function formSubmit(e) {
     e.preventDefault();
+    var accExist = await contract.methods.getIdentity(accounts[0]);
+
     console.log(name, email, pass, type, add, accounts[0]);
     if (
       name === "" ||
@@ -71,6 +73,9 @@ export default function Register() {
       setShow(true);
       setTimeout(() => setShow(false), 3000);
     }
+    // else if (accExist) {
+    //   alert("Account exist ");
+    // }
     // add to blockchain
     else {
       try {

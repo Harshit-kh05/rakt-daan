@@ -4,6 +4,7 @@ import globalContext from "../context/GlobalContext";
 import { useContext, useState } from "react";
 import { Button, Card, Col, Container, Form, Row } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import FetchFromAadhar from "../dummyAPI/fetchAadhar";
 
 export default function BloodCollection() {
   const { web3, accounts, contract } = useContext(BlockChainContext);
@@ -33,29 +34,35 @@ export default function BloodCollection() {
   async function formSubmit(e) {
     e.preventDefault();
     console.log(data, user);
-    if (data.bloodId === "" || data.ad)
-      if (true) {
-        try {
-          await contract.methods
-            .addBloodUnit(
-              data.bloodId,
-              data.aadharNo,
-              // to save blood bank name
-              user.name,
-              data.bloodGroup,
-              new Date(Date.now() + 42 * 86400000)
-                .toLocaleString("en-GB")
-                .split(" ")[0],
-              user.coords
-            )
-            .send({ from: accounts[0] });
-          navigate("/bloodbankhome");
-        } catch (err) {
-          console.log("Error in creation");
-        }
-      } else {
-        alert(`${"Enter Valid credentials"}`);
+    var bloodExist = await contract.methods.bloodExist(data.bloodId);
+
+    if (data.bloodId === "" || data.aadharNo === "" || data.bloodGroup === "") {
+      alert("complete the form");
+    } else if (FetchFromAadhar(data.aadharNo) === undefined) {
+      alert("Aadhar not present in database");
+    } else if (bloodExist === true) {
+      alert("Blood ID exists");
+    } else {
+      try {
+        await contract.methods
+          .addBloodUnit(
+            data.bloodId,
+            data.aadharNo,
+            // expiry
+            data.bloodGroup,
+            new Date(Date.now() + 42 * 86400000)
+              .toLocaleString("en-GB")
+              .split(" ")[0],
+            // to save blood bank name
+            user.name,
+            user.coords
+          )
+          .send({ from: accounts[0] });
+        navigate("/bloodbank-home");
+      } catch (err) {
+        console.log("Error in creation");
       }
+    }
   }
 
   return (
@@ -71,7 +78,7 @@ export default function BloodCollection() {
                   alt="..."
                   src={require("../assets/img/square-purple-1.png")}
                 />
-                <Card.Title tag="h4">Login</Card.Title>
+                <Card.Title tag="h4">Details</Card.Title>
               </Card.Header>
               <Card.Body>
                 <Form>

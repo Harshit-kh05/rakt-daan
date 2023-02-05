@@ -14,6 +14,7 @@ import BlockchainContext from "./context/BlockChainContext";
 import BloodbankHome from "./views/BloodbankHome";
 import BloodCollection from "./views/BloodCollection";
 import UpdateStatus from "./views/UpdateStatus";
+import HospitalHome from "./views/HospitalHome";
 
 const getWeb3 = async () => {
   let web3Object = undefined;
@@ -89,6 +90,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/bloodbank-home" element={<BloodbankHome />} />
+          <Route path="/hospital-home" element={<HospitalHome />} />
           <Route path="/blood-collection" element={<BloodCollection />} />
           <Route path="/update-status" element={<UpdateStatus />} />
         </Routes>

@@ -15,6 +15,7 @@ library BloodUnitLibrary {
     string blood_group;
     string expiry_date;
     uint256 statusCount; // keep track of no of status changes
+    bool exists;
     mapping(uint256 => BloodStatus) bloodStatus;
   }
 
@@ -32,7 +33,7 @@ library BloodUnitLibrary {
 
 contract BloodUnitTracker {
   mapping(uint256 => BloodUnitLibrary.BloodUnit) public BloodStore;
-
+  mapping(string => uint256) public idToBloodId;
   // to store the no of available bloods
   // its public so that we can modify from js
   uint256 public bloodCount = 0;
@@ -64,13 +65,15 @@ contract BloodUnitTracker {
     string memory _cur_owner_address // ccordinates
   ) public returns (uint256) {
     bloodCount++;
+    idToBloodId[_uniqueid] = bloodCount;
     BloodStore[bloodCount] = BloodUnitLibrary.BloodUnit(
       bloodCount,
       _uniqueid,
       _aadhar,
       _blood_group,
       _expiry_date,
-      0
+      0,
+      true
     );
     BloodStore[bloodCount].statusCount++;
     BloodStore[bloodCount].bloodStatus[
@@ -83,6 +86,11 @@ contract BloodUnitTracker {
     );
     // save transaction on Chain
     emit BloodUnitCreate(bloodCount, _cur_owner, _cur_owner_address, 0);
+  }
+
+  function bloodExist(string memory _id) public view returns (bool) {
+    if (BloodStore[idToBloodId[_id]].exists) return true;
+    return false;
   }
 
   // give detail about the donor and sample

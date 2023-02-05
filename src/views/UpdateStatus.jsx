@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { sha256 } from "js-sha256";
 import QRCode from "qrcode";
 import CustomNavbar from "../components/CustomNavbar";
-import { Badge, Button, Col, Container, Row } from "react-bootstrap";
+import { Badge, Button, Card, Col, Container, Row } from "react-bootstrap";
 import { useLocation } from "react-router-dom";
 
 export default function UpdateStatus(props) {
@@ -18,6 +18,7 @@ export default function UpdateStatus(props) {
   const donor = location.state;
 
   async function formSubmit(e, status) {
+    console.log(donor);
     e.preventDefault();
 
     donor.verified = status;
@@ -33,7 +34,7 @@ export default function UpdateStatus(props) {
             donor.id,
             donor.currentBloodBank,
             1,
-            user.location,
+            user.coords,
             donor.currentBloodBank
           );
           await contract.methods
@@ -41,7 +42,7 @@ export default function UpdateStatus(props) {
               donor.id,
               donor.currentBloodBank,
               1,
-              user.location,
+              user.coords,
               donor.currentBloodBank
             )
             .send({ from: accounts[0] });
@@ -51,20 +52,12 @@ export default function UpdateStatus(props) {
         // ---------- Generating and downloading QR code
         console.log(
           "Generating QR code of",
-          donor.adharNo
-            .replaceAll(" ", "")
-            .concat(donor.bloodId)
-            .concat(donor.batchNo)
+          donor.adharNo.replaceAll(" ", "").concat(donor.bloodId)
         );
         try {
           const qrCodeURL = (
             await QRCode.toDataURL(
-              sha256(
-                donor.adharNo
-                  .replaceAll(" ", "")
-                  .concat(donor.bloodId)
-                  .concat(donor.batchNo)
-              )
+              sha256(donor.adharNo.replaceAll(" ", "").concat(donor.bloodId))
             )
           ).replace("image/png", "image/octet-stream");
           console.log(qrCodeURL);
@@ -80,7 +73,7 @@ export default function UpdateStatus(props) {
         // ----------
 
         navigate({
-          pathname: "/bloodbankhome",
+          pathname: "/bloodbank-home",
           state: {
             card_id_to_be_changed: donor.cardId,
             value: 1,
@@ -95,7 +88,7 @@ export default function UpdateStatus(props) {
               donor.id,
               donor.currentBloodBank,
               2,
-              user.location, // Enter real blood bank location instead of this values
+              user.coords, // Enter real blood bank location instead of this values
               donor.currentBloodBank
             )
             .send({ from: accounts[0] });
@@ -103,7 +96,7 @@ export default function UpdateStatus(props) {
           console.log("Error in Transfer function", err);
         }
         navigate({
-          pathname: "/bloodbankhome",
+          pathname: "/bloodbank-home",
           state: {
             card_id_to_be_changed: donor.cardId,
             value: 2,
@@ -120,84 +113,103 @@ export default function UpdateStatus(props) {
   return (
     <Container fluid className="editContainer">
       <CustomNavbar url="bloodBankHome" />
-      <Container className="editCard">
-        <p className="text-center">Details</p>
+      <Container style={{ marginTop: "100px" }}>
         <Row>
-          <Col>
-            <p>Email : {donor.email}</p>
-          </Col>
-          <Col>
-            <p> Aadhar No : {donor.adharNo}</p>
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <p>Blood ID : {donor.bloodId}</p>
-          </Col>
-          <Col>
-            <p>Batch No : {donor.batchNo}</p>
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <p>Collection Date : {donor.collectionDate}</p>
-          </Col>
-          <Col>
-            <p>Expiry Date : {donor.expiryDate}</p>
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <p>Blood Group : {donor.bloodGroup}</p>
-          </Col>
-          <Col>
-            <p>Age : {donor.age}</p>
-          </Col>
-        </Row>
+          <Col></Col>
+          <Col lg={5}>
+            <Card className="card-register" style={{ width: "500px" }}>
+              <Card.Header>
+                <Card.Img
+                  alt="..."
+                  src={require("../assets/img/square-purple-1.png")}
+                />
+                <Card.Title tag="h4">Details</Card.Title>
+              </Card.Header>
+              <Card.Body>
+                <Row>
+                  <Col>
+                    <p>Email : {donor.email}</p>
+                  </Col>
+                  <Col>
+                    <p> Aadhar No : {donor.adharNo}</p>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col>
+                    <p>Blood ID : {donor.bloodId}</p>
+                  </Col>
+                  <Col>
+                    <p>Age : {donor.age}</p>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col>
+                    <p>Collection Date : {donor.collectionDate}</p>
+                  </Col>
+                  <Col>
+                    <p>Expiry Date : {donor.expiryDate}</p>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col>
+                    <p>Blood Group : {donor.bloodGroup}</p>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col></Col>
+                  <Col lg={7}>
+                    <p>
+                      Verification Status :
+                      {donor.verified === "0" && (
+                        <Badge bg="warning" className="py-1">
+                          Not yet Tested
+                        </Badge>
+                      )}
+                      {donor.verified === "1" && (
+                        <Badge bg="success" className="py-1">
+                          Tested {"&"} Safe
+                        </Badge>
+                      )}
+                      {donor.verified === "2" && (
+                        <Badge bg="danger" className="py-1">
+                          Tested {"&"} Unsafe
+                        </Badge>
+                      )}
+                    </p>
+                  </Col>
+                  <Col></Col>
+                </Row>
 
-        <p>
-          Verification Status :
-          {donor.verified === "0" && (
-            <Badge bg="warning" className="py-1">
-              Not yet Tested
-            </Badge>
-          )}
-          {donor.verified === "1" && (
-            <Badge bg="success" className="py-1">
-              Tested {"&"} Safe
-            </Badge>
-          )}
-          {donor.verified === "2" && (
-            <Badge bg="danger" className="py-1">
-              Tested {"&"} Unsafe
-            </Badge>
-          )}
-        </p>
-        <Row>
-          <Col>
-            <Button
-              className="btn-round ml-auto mr-auto"
-              variant="success"
-              size="lg"
-              onClick={(e) => {
-                formSubmit(e, true);
-              }}
-            >
-              Change status to Tested {"&"} Safe
-            </Button>
+                <Row>
+                  <Col>
+                    <Button
+                      className="btn-round ml-auto mr-auto"
+                      variant="success"
+                      size="lg"
+                      onClick={(e) => {
+                        formSubmit(e, true);
+                      }}
+                    >
+                      Change status to Tested {"&"} Safe
+                    </Button>
+                  </Col>
+                  <Col>
+                    <Button
+                      className="btn-round ml-auto mr-auto"
+                      variant="danger"
+                      size="lg"
+                      onClick={(e) => {
+                        formSubmit(e, false);
+                      }}
+                    >
+                      Change status to Tested {"&"} UnSafe
+                    </Button>
+                  </Col>
+                </Row>
+              </Card.Body>
+            </Card>
           </Col>
-          <Col>
-            <Button
-              className="btn-round ml-auto mr-auto"
-              variant="danger"
-              size="lg"
-              onClick={(e) => {
-                formSubmit(e, false);
-              }}
-            >
-              Change status to Tested {"&"} UnSafe
-            </Button>
-          </Col>
+          <Col></Col>
         </Row>
       </Container>
     </Container>

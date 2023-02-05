@@ -1,51 +1,43 @@
-import { Button, Col, Container, Row } from "react-bootstrap";
+import classNames from "classnames";
+import { Badge, Button, Col, Container, Row } from "react-bootstrap";
 
 export default function ProfileCard(props) {
+  var isBank = props.type !== "Blood Bank" ? " d-none" : "";
   return (
-    <Container className="align-items-center">
+    <Container className="align-items-center mb-0">
       <Row>
         <Col></Col>
         <Col lg="6" md="6">
           <h1 className="profile-title text-left">{props.name}</h1>
-          <h5 className="text-on-back">
+          <h6 className="text-on-back">
             {props.type === "Blood Bank" ? `Blood Bank` : `Hospital`}
-          </h5>
-          <p className="profile-description">
+          </h6>
+          <p className="profile-description mt-5">
             Offices parties lasting outward nothing age few resolve. Impression
             to discretion understood to we interested he excellence. Him
             remarkably use projection collecting. Going about eat forty world
             has round miles.
           </p>
-          <div className="btn-wrapper profile pt-3">
-            <Button
-              className="btn-icon btn-round"
-              color="twitter"
-              href="https://twitter.com/creativetim"
-              id="tooltip639225725"
-              target="_blank"
-            >
-              <i className="fab fa-twitter" />
-            </Button>
-            <Button
-              className="btn-icon btn-round"
-              color="facebook"
-              href="https://www.facebook.com/creativetim"
-              id="tooltip982846143"
-              target="_blank"
-            >
-              <i className="fab fa-facebook-square" />
-            </Button>
-            <Button
-              className="btn-icon btn-round"
-              color="dribbble"
-              href="https://dribbble.com/creativetim"
-              id="tooltip951161185"
-              target="_blank"
-            >
-              <i className="fab fa-dribbble" />
-            </Button>
-          </div>
         </Col>
+        <Col></Col>
+      </Row>
+      <div className={` mt-2 text-center ${isBank}`}>
+        <h2>{props.type == "Blood Bank" ? "Available Blood" : ""}</h2>
+      </div>
+      <Row className={isBank}>
+        <Col></Col>
+        {Object.entries(props.bloodCount).map(([key, value], i) => (
+          <>
+            <Col>
+              <div className={`ml-auto mr-auto my-5`}>
+                <Badge bg={parseInt(value) > 0 ? "success" : "danger"}>
+                  <h2 className="font-weight-bold mb-1">{value}</h2>
+                  <p className="font-weight-bold">{key}</p>
+                </Badge>
+              </div>
+            </Col>
+          </>
+        ))}
         <Col></Col>
       </Row>
     </Container>
