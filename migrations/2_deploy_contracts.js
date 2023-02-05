@@ -1,5 +1,5 @@
-const AssetTracker = artifacts.require("AssetTracker");
+const BloodUnitTracker = artifacts.require("BloodUnitTracker");
 
 module.exports = function (deployer) {
-  deployer.deploy(AssetTracker);
+  deployer.deploy(BloodUnitTracker);
 };

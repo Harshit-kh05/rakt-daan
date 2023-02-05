@@ -9,39 +9,36 @@ import Register from "./views/Register";
 
 import { useEffect, useState } from "react";
 import Web3 from "web3";
-import freelance from "../src/build/contracts/AssetTracker.json";
+import freelance from "../src/build/contracts/BloodUnitTracker.json";
 import BlockchainContext from "./context/BlockChainContext";
-
-
+import BloodbankHome from "./views/BloodbankHome";
+import BloodCollection from "./views/BloodCollection";
+import UpdateStatus from "./views/UpdateStatus";
 
 const getWeb3 = async () => {
-  let tempWeb3 = undefined;
+  let web3Object = undefined;
   if (window.ethereum) {
-    tempWeb3 = new Web3(window.ethereum);
+    web3Object = new Web3(window.ethereum);
+    console.log(web3Object);
     try {
       // Request account access if needed
-      await window.eth_requestAccounts();
-      // console.log(tempWeb3);
-      //console.log(web3.eth.getAccounts());
+      const accs = await web3Object.eth.getAccounts();
       // Acccounts now exposed
     } catch (error) {
-      // User denied account access...
+      console.log(error);
     }
   }
-  // Legacy dapp browsers...
-  else if (tempWeb3) {
-    tempWeb3 = new Web3(tempWeb3.currentProvider);
-    // console.log(tempWeb3);
-    // Acccounts always exposed
+  // Legacy dapp browsers.
+  else if (web3Object) {
+    web3Object = new Web3(web3Object.currentProvider);
   }
   // Non-dapp browsers...
   else {
-    console.log(
-      "Non-Ethereum browser detected. You should consider trying MetaMask!"
-    );
+    console.log("Non-Ethereum browser detected");
   }
 
-  return tempWeb3;
+  // return the initialised web3 Object
+  return web3Object;
 };
 
 function App() {
@@ -51,33 +48,34 @@ function App() {
 
   useEffect(() => {
     const init = async () => {
-      // load web3
-      const tempWeb3 = await getWeb3();
-      // loadBlockchainData
-      const tempAccounts = await tempWeb3.eth.getAccounts();
-      const networkId = await tempWeb3.eth.net.getId();
-      let freelancecon;
+      // loading web3 Object
+      const web3Object = await getWeb3();
+      console.log(web3Object);
+      // loading data from metamask
+      const accs = await web3Object.eth.getAccounts();
+      const networkId = await web3Object.eth.net.getId();
+      let tempContract;
 
-      const listener = (accs) => {
+      window.ethereum.on("accountsChanged", (accs) => {
+        console.log("account changed");
         setAccounts(accs);
-      };
-
-      window.ethereum.on("accountsChanged", listener);
+      });
 
       const networkdata = freelance.networks[networkId];
+      console.log(networkdata);
       if (networkdata) {
         const abi = freelance.abi;
-        // console.log("freelance.abi", freelance.abi);
-        freelancecon = new tempWeb3.eth.Contract(abi, networkdata.address);
+        tempContract = new web3Object.eth.Contract(abi, networkdata.address);
       }
 
-      // saving this to states
-      setWeb3(tempWeb3);
-      setAccounts(tempAccounts);
-      setContract(freelancecon);
-      // console.log("contract init", contract);
+      setWeb3(web3Object);
+      setAccounts(accs);
+      setContract(tempContract);
+
+      // printing stats
       console.log("accounts", accounts);
-      // console.log("web3", web3);
+      console.log("contract", contract);
+      console.log("web3", web3);
     };
 
     init();
@@ -85,18 +83,17 @@ function App() {
 
   return (
     <GlobalState>
-        <BlockchainContext.Provider value={{ web3, accounts, contract }}>
-
+      <BlockchainContext.Provider value={{ web3, accounts, contract }}>
         <Routes>
-          
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/bloodbank-home" element={<BloodbankHome />} />
+          <Route path="/blood-collection" element={<BloodCollection />} />
+          <Route path="/update-status" element={<UpdateStatus />} />
         </Routes>
       </BlockchainContext.Provider>
     </GlobalState>
-    
-    
   );
 }
 

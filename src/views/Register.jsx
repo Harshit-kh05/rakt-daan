@@ -1,6 +1,17 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import CustomNavbar from "../components/CustomNavbar";
-import { Button, Card, Col, Container, Form, Row } from "react-bootstrap";
+import {
+  Alert,
+  Button,
+  Card,
+  Col,
+  Container,
+  Form,
+  Row,
+} from "react-bootstrap";
+import BlockChainContext from "../context/BlockChainContext";
+import globalContext from "../context/GlobalContext";
+import { useNavigate } from "react-router-dom";
 
 export default function Register() {
   const [squares1to6, setSquares1to6] = useState("");
@@ -8,31 +19,19 @@ export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
+  const [add, setAdd] = useState("");
   const [type, setType] = useState("");
-  const [coords, setCoords] = useState({
-    lat: "",
-    long: "",
-  });
+
+  const [showAlert, setShow] = useState(false);
+
+  const { web3, accounts, contract } = useContext(BlockChainContext);
+  const { setUserHelper } = useContext(globalContext);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     document.body.classList.toggle("register-page");
     document.documentElement.addEventListener("mousemove", followCursor);
-
-    // get user latitude longitude
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        let latitude = pos.coords.latitude;
-        let longitude = pos.coords.longitude;
-        console.log("Latitude :", latitude);
-        console.log("Longitude :", longitude);
-        setCoords({
-          lat: latitude,
-          long: longitude,
-        });
-      },
-      () => {},
-      { enableHighAccuracy: true }
-    );
 
     // Specify how to clean up after this effect:
     return function cleanup() {
@@ -59,9 +58,48 @@ export default function Register() {
     );
   };
 
-  function formSubmit(e) {
+  async function formSubmit(e) {
     e.preventDefault();
-    console.log(name, email, pass, type);
+    console.log(name, email, pass, type, add, accounts[0]);
+    if (
+      name === "" ||
+      email === "" ||
+      pass === "" ||
+      (type !== "Blood Bank" && type !== "Hospital") ||
+      add === ""
+    ) {
+      setShow(true);
+      setTimeout(() => setShow(false), 3000);
+    }
+    // add to blockchain
+    else {
+      try {
+        let coords;
+        // setting fixed coords due to non availibility of free geocoder
+        if (type == "Blood Bank") {
+          coords = "28.71154455678884,77.1556677910753";
+        } else {
+          coords = "28.527718654318228,77.21201605513441";
+        }
+        await contract.methods
+          .addIdentity(name, accounts[0], email, pass, add, coords, type)
+          .send({ from: accounts[0] });
+        console.log("Registered Successfully");
+        var curUser = {
+          name: name,
+          email: email,
+          address: add,
+          coords: coords,
+          type: type,
+        };
+        setUserHelper(curUser);
+        // redirect to home after registering
+        if (type == "Blood Bank") navigate("/bloodbank-home");
+        else navigate("/hospital-home");
+      } catch (error) {
+        console.log("User Registration Error: ", error);
+      }
+    }
   }
 
   return (
@@ -70,8 +108,11 @@ export default function Register() {
       <div className="wrapper">
         <div className="page-header" style={{ background: "white" }}>
           <div className="page-header-image" />
-          <div className="content">
+          <div className="content m-0  mt-5 p-5">
             <Container>
+              <Alert show={showAlert} variant="info">
+                Complete the form
+              </Alert>
               <Row>
                 <Col className="offset-lg-0 offset-md-3" lg="5" md="6">
                   <div
@@ -99,9 +140,7 @@ export default function Register() {
                             type="text"
                             placeholder="Enter Org Name"
                             value={name}
-                            onChange={(e) => {
-                              setName(e.target.value);
-                            }}
+                            onChange={(e) => setName(e.target.value)}
                           ></Form.Control>
                         </Form.Group>
                         <Form.Group className="mb-3">
@@ -109,9 +148,7 @@ export default function Register() {
                             type="email"
                             placeholder="Enter Email"
                             value={email}
-                            onChange={(e) => {
-                              setEmail(e.target.value);
-                            }}
+                            onChange={(e) => setEmail(e.target.value)}
                           />
                         </Form.Group>
                         <Form.Group className="mb-3">
@@ -119,10 +156,18 @@ export default function Register() {
                             type="password"
                             placeholder="Enter Password"
                             value={pass}
-                            onChange={(e) => {
-                              setPass(e.target.value);
-                            }}
+                            onChange={(e) => setPass(e.target.value)}
                           />
+                        </Form.Group>
+                        <Form.Group>
+                          <Form.Control
+                            className="mb-3"
+                            as="textarea"
+                            placeholder="Enter Address"
+                            rows="2"
+                            value={add}
+                            onChange={(e) => setAdd(e.target.value)}
+                          ></Form.Control>
                         </Form.Group>
                         <Form.Group>
                           <Form.Select
@@ -152,7 +197,6 @@ export default function Register() {
                   </Card>
                 </Col>
               </Row>
-              <div className="register-bg" />
               <div
                 className="square square-1"
                 id="square1"

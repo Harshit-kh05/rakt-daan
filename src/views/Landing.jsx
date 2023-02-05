@@ -14,7 +14,7 @@ export default function Landing() {
 
   return (
     <>
-      <CustomNavbar />
+      <CustomNavbar url="home" />
       <div className="wrapper">
         <div className="page-header" style={{ background: "#F55050" }}>
           {/* <img

@@ -2,8 +2,8 @@ import React from "react";
 import { Container, Nav, Navbar } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 
-export default function CustomNavbar() {
-  const url = "home";
+export default function CustomNavbar(props) {
+  const url = props.url;
 
   return (
     <Navbar className={"fixed-top bg-dark"} bg="light" expand="lg">
@@ -27,7 +27,7 @@ export default function CustomNavbar() {
               </>
             )}
             {url === "bloodBankHome" && (
-              <LinkContainer to="/bloodCollection">
+              <LinkContainer to="/blood-collection">
                 <Nav.Link>Blood Collection</Nav.Link>
               </LinkContainer>
             )}

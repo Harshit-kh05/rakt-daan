@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import CustomNavbar from "../components/CustomNavbar";
 import {
   Button,
@@ -11,12 +11,20 @@ import {
 } from "react-bootstrap";
 import classNames from "classnames";
 import CardHeader from "react-bootstrap/esm/CardHeader";
+import globalContext from "../context/GlobalContext";
+import BlockChainContext from "../context/BlockChainContext";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const [squares1to6, setSquares1to6] = useState("");
   const [squares7and8, setSquares7and8] = useState("");
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
+
+  const { web3, accounts, contract } = useContext(BlockChainContext);
+  const { setUserHelper } = useContext(globalContext);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     document.body.classList.toggle("register-page");
@@ -46,8 +54,36 @@ export default function Login() {
     );
   };
 
-  function formSubmit(e) {
-    e.preventDefault();
+  async function formSubmit(e) {
+    console.log(email, pass, accounts[0]);
+
+    let accountExist = await contract.methods.getIdentity(accounts[0]).call();
+    if (email === "" || pass === "") {
+      alert("Complete the form");
+    } else if (accountExist === false) {
+      alert("Account does not exist");
+    } else {
+      try {
+        var userData = await contract.methods
+          .getUser(accounts[0], email.toString(), pass.toString())
+          .call();
+        console.log(userData);
+        var curUser = {
+          name: userData[0],
+          email: email.toString(),
+          add: userData[2],
+          coords: userData[3],
+          type: userData[1],
+        };
+        console.log("Current Logged In User: ", curUser);
+        setUserHelper(curUser);
+        // redirect to home after registering
+        if (userData[1] === "Blood Bank") navigate("/bloodbank-home");
+        else navigate("/hospital-home");
+      } catch (err) {
+        console.log("Login Error: ", err);
+      }
+    }
   }
 
   return (
