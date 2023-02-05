@@ -1,9 +1,35 @@
+### Rakt Daan is a blockchain-powered solution for blood donation and distribution management. It ensures donor data integrity and prevents fraud, effectively manages surplus blood supply, and promotes transparency in the process.
+
+### What are we solving :
+
+India faces a critical shortage of quality blood, with a deficit of 4 million units per year, particularly in rural and remote areas. The current blood management system is plagued by inefficiencies, lack of transparency, and wastage of blood due to poor storage and management practices. Additionally, the presence of fraudulent organizations exacerbates the challenges faced by those in need of blood transfusions. There is an urgent need for a reliable and efficient blood management system to improve the overall availability and quality of blood, increase transparency and accountability, and address the concerns of blood donors.
+
+To address these problems we have built Rakt Daan.
+
+## How Our System Works :
+
+- Information regarding donated blood is recorded on the blockchain as a new block of data. This block contains details such as blood group, blood ID, Aadhaar number, age, etc., and is added to the blood store.
+- The donated blood is then taken to an inspection center for testing and classification as either "Tested and Safe" or "Tested and Unsafe."
+- If the blood is "safe", then a QR code will be generated with a combination of Aadhaar numbers and blood id hash. This QR code will be automatically downloaded and can be used for the verfication at the hospital end.
+- The blood, which is marked as ''Tested and Safe'' can now transfer it to the hospitals.
+- On the hospital side, if blood is needed, they must specify the required blood group to maintain accountability.
+- After searching the optimal blood bank(nearest and availability), the Blood will be transferred from that blood bank to the current Hospital.
+- Then the Hospital can see details of the Blood that will be transfered. The hospital can access the location of the blood bank on google maps, and upon receipt of the blood, they can verify its authenticity by uploading the QR code on the app.
+- Healthcare facilities such as hospitals and blood banks have the option for logging in or registering as new users. To ensure security, any transactions involving the transfer or creation of assets must be verified and confirmed through a MetaMask wallet.
+
+## Conclusion :
+
+- The blockchain-based solution offers increased transparency through traceability.
+- The use of QR code authentication and secure transactions guarantees the authenticity of blood reaching patients.
+- The issue of unavailability of blood is addressed by instantly providing information about the nearest blood bank with the necessary blood type to the hospital.
+- The traditional system's lack of transparency is addressed through decentralization.
+
 ## Installation Steps:
 
-1. Clone The repo
-2. npm install in the terminal in the root directory
-3. Open ganache
-4. run truffle migrate --reset in your terminal
-5. Npm start - you can see the demo in localhost port 3000.
-
-#
+1. Clone The repository.
+2. npm install --force in the terminal in the root directory.
+3. Open ganache.
+4. Change the private key with your secret mnemonic in truffle-config.js
+5. Run truffle compile in the terminal for compiling the cotracts.
+6. Run truffle migrate --reset in your terminal
+7. Npm start - to open in localhost port 3000.
