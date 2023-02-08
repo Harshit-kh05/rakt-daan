@@ -15,6 +15,7 @@ import globalContext from "../context/GlobalContext";
 import { useNavigate } from "react-router-dom";
 import { Dots } from "react-preloaders";
 import Preloader from "../components/Preloader";
+import { useContract } from "@thirdweb-dev/react";
 
 export default function Register() {
   const [squares1to6, setSquares1to6] = useState("");
@@ -30,8 +31,11 @@ export default function Register() {
 
   const [showAlert, setShow] = useState(false);
 
-  const { web3, accounts, contract } = useContext(BlockChainContext);
-  const { setUserHelper } = useContext(globalContext);
+  const { contract } = useContract(
+    "0x562c8B913F937367Ba35C48B7937d1C592bE088d"
+  );
+
+  constaccout;
 
   const navigate = useNavigate();
 

@@ -1,6 +1,7 @@
 import React from "react";
 import { Container, Nav, Navbar } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
+import { ConnectWallet } from "@thirdweb-dev/react";
 
 export default function CustomNavbar(props) {
   const url = props.url;
@@ -30,6 +31,11 @@ export default function CustomNavbar(props) {
               <LinkContainer to="/blood-collection">
                 <Nav.Link>Blood Collection</Nav.Link>
               </LinkContainer>
+            )}
+            {url === "home" && (
+              <Nav.Item>
+                <ConnectWallet colorMode="dark" accentColor="#5e72e4" />
+              </Nav.Item>
             )}
           </Nav>
         </Navbar.Collapse>

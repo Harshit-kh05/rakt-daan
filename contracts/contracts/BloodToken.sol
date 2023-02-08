@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.4.22 <0.9.0;
+pragma solidity ^0.8.0;
+
+import "@thirdweb-dev/contracts/base/ERC20Base.sol";
 
 library BloodUnitLibrary {
   struct BloodStatus {
@@ -31,7 +33,12 @@ library BloodUnitLibrary {
   }
 }
 
-contract BloodUnitTracker {
+contract BloodToken is ERC20Base {
+  constructor(
+    string memory _name,
+    string memory _symbol
+  ) ERC20Base(_name, _symbol) {}
+
   mapping(uint256 => BloodUnitLibrary.BloodUnit) public BloodStore;
   mapping(string => uint256) public idToBloodId;
   // to store the no of available bloods
@@ -63,19 +70,16 @@ contract BloodUnitTracker {
     string memory _expiry_date,
     string memory _cur_owner,
     string memory _cur_owner_address // ccordinates
-  ) public returns (uint256) {
+  ) public {
     bloodCount++;
     idToBloodId[_uniqueid] = bloodCount;
-    BloodStore[bloodCount] = BloodUnitLibrary.BloodUnit(
-      bloodCount,
-      _uniqueid,
-      _aadhar,
-      _blood_group,
-      _expiry_date,
-      0,
-      true
-    );
-    BloodStore[bloodCount].statusCount++;
+    BloodStore[bloodCount].id = bloodCount;
+    BloodStore[bloodCount].uniqueid = _uniqueid;
+    BloodStore[bloodCount].aadhar = _aadhar;
+    BloodStore[bloodCount].blood_group = _blood_group;
+    BloodStore[bloodCount].expiry_date = _expiry_date;
+    BloodStore[bloodCount].statusCount = 1;
+    BloodStore[bloodCount].exists = true;
     BloodStore[bloodCount].bloodStatus[
       BloodStore[bloodCount].statusCount
     ] = BloodUnitLibrary.BloodStatus(
@@ -120,7 +124,7 @@ contract BloodUnitTracker {
     uint256 verified,
     string memory _status,
     string memory _newUser
-  ) public returns (string memory) {
+  ) public {
     require(
       sha256(
         abi.encodePacked(
@@ -193,23 +197,32 @@ contract BloodUnitTracker {
     );
   }
 
-  function getUser(
+  function isloginValid(
     address payable _user_add,
     string memory _email,
     string memory _password
+  ) public view returns (string memory) {
+    if (
+      sha256(abi.encodePacked((UserStore[_user_add].email))) !=
+      sha256(abi.encodePacked((_email)))
+    ) {
+      return "1";
+    } else if (
+      sha256(abi.encodePacked((UserStore[_user_add].password))) ==
+      sha256(abi.encodePacked((_password)))
+    ) {
+      return "2";
+    }
+    return "3";
+  }
+
+  function getLoginDetails(
+    address payable _user_add
   )
     public
     view
     returns (string memory, string memory, string memory, string memory)
   {
-    require(
-      sha256(abi.encodePacked((UserStore[_user_add].email))) ==
-        sha256(abi.encodePacked((_email)))
-    );
-    require(
-      sha256(abi.encodePacked((UserStore[_user_add].password))) ==
-        sha256(abi.encodePacked((_password)))
-    );
     return (
       UserStore[_user_add].name,
       UserStore[_user_add].typeID,

@@ -11,15 +11,10 @@ import {
   Row,
   Spinner,
 } from "react-bootstrap";
-
-import { Dots } from "react-preloaders";
-
-import classNames from "classnames";
-import CardHeader from "react-bootstrap/esm/CardHeader";
 import globalContext from "../context/GlobalContext";
-import BlockChainContext from "../context/BlockChainContext";
 import { useNavigate } from "react-router-dom";
 import Preloader from "../components/Preloader";
+import { useAddress, useContract, useContractRead } from "@thirdweb-dev/react";
 
 export default function Login() {
   const [squares1to6, setSquares1to6] = useState("");
@@ -28,13 +23,24 @@ export default function Login() {
   const [pass, setPass] = useState("");
   const [isLoading, setLoading] = useState(false);
 
+  const { contract } = useContract(
+    "0x562c8B913F937367Ba35C48B7937d1C592bE088d"
+  );
   const [alertMessage, setAlert] = useState("");
   const [showAlert, setShow] = useState(false);
 
-  const { web3, accounts, contract } = useContext(BlockChainContext);
   const { setUserHelper } = useContext(globalContext);
 
   const navigate = useNavigate();
+
+  const account = useAddress();
+
+  const { data } = useContractRead(contract, "getIdentity", account);
+  const { mutateAsync: isLoginValid } = useContractRead(
+    contract,
+    "isLoginValid"
+  );
+  const { mutateAsync: getLoginDetails } = useContractRead(contract, "getUser");
 
   useEffect(() => {
     document.body.classList.toggle("register-page");
@@ -64,37 +70,49 @@ export default function Login() {
     );
   };
 
-  async function formSubmit(e) {
-    console.log(email, pass, accounts[0]);
-
-    let accountExist = await contract.methods.getIdentity(accounts[0]).call();
-    if (email === "" || pass === "") {
-      setAlert("Complete the form");
+  async function FormSubmit(e) {
+    let accountExist = data;
+    console.log(email, pass, account, accountExist);
+    if (accountExist == false) {
+      setAlert("Account does not exist");
       setShow(true);
       setTimeout(() => setShow(false), 3000);
-    } else if (accountExist === false) {
-      setAlert("Account does not exist");
+    } else if (email === "" || pass === "") {
+      setAlert("Complete the form");
       setShow(true);
       setTimeout(() => setShow(false), 3000);
     } else {
       try {
-        setLoading(true);
-        var userData = await contract.methods
-          .getUser(accounts[0], email.toString(), pass.toString())
-          .call();
-        console.log(userData);
-        var curUser = {
-          name: userData[0],
-          email: email.toString(),
-          add: userData[2],
-          coords: userData[3],
-          type: userData[1],
-        };
-        console.log("Current Logged In User: ", curUser);
-        setUserHelper(curUser);
-        // redirect to home after registering
-        if (userData[1] === "Blood Bank") navigate("/bloodbank-home");
-        else navigate("/hospital-home");
+        //checking if email pass if right
+        var loginStatus = await isLoginValid(account, email, pass);
+        if (loginStatus === "1") {
+          setAlert("Email does not match with account");
+          setShow(true);
+          setTimeout(() => setShow(false), 3000);
+        } else if (loginStatus === "2") {
+          setAlert("Wrong Password");
+          setShow(true);
+          setTimeout(() => setShow(false), 3000);
+        } else if (loginStatus === "3") {
+          var userData = await getLoginDetails(
+            account,
+            email.toString(),
+            pass.toString()
+          );
+          console.log(userData);
+          var curUser = {
+            name: userData[0],
+            email: email.toString(),
+            add: userData[2],
+            coords: userData[3],
+            type: userData[1],
+          };
+          console.log("Current Logged In User: ", curUser);
+          setUserHelper(curUser);
+          // redirect to home after registering
+          if (userData[1] === "Blood Bank") navigate("/bloodbank-home");
+          else navigate("/hospital-home");
+        }
       } catch (err) {
         console.log("Login Error: ", err);
       }
@@ -162,7 +180,7 @@ export default function Login() {
                           className="btn-round"
                           color="primary"
                           size="lg"
-                          onClick={formSubmit}
+                          onClick={FormSubmit}
                         >
                           Get Started
                         </Button>
